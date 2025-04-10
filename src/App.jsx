@@ -1,6 +1,5 @@
 import { useState } from "react";
-
-function useGeolocation() {}
+import "./index.css";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,9 +11,12 @@ export default function App() {
 
   function getPosition() {
     setCountClicks((count) => count + 1);
+    setError(null);
 
-    if (!navigator.geolocation)
-      return setError("Your browser does not support geolocation");
+    if (!navigator.geolocation) {
+      setError("Your browser does not support geolocation");
+      return;
+    }
 
     setIsLoading(true);
     navigator.geolocation.getCurrentPosition(
@@ -35,11 +37,19 @@ export default function App() {
   return (
     <div>
       <button onClick={getPosition} disabled={isLoading}>
-        Get my position
+        {isLoading ? (
+          <span className="loading-animation">
+            <span className="loading-dot"></span>
+            <span className="loading-dot"></span>
+            <span className="loading-dot"></span>
+          </span>
+        ) : (
+          "📍 Get my position"
+        )}
       </button>
 
-      {isLoading && <p>Loading position...</p>}
-      {error && <p>{error}</p>}
+      {isLoading && <p>Detecting your location...</p>}
+      {error && <p className="error-message">{error}</p>}
       {!isLoading && !error && lat && lng && (
         <p>
           Your GPS position:{" "}
@@ -48,12 +58,12 @@ export default function App() {
             rel="noreferrer"
             href={`https://www.openstreetmap.org/#map=16/${lat}/${lng}`}
           >
-            📌 {lat}, {lng}
+            {lat}, {lng}
           </a>
         </p>
       )}
 
-      <p>You requested position {countClicks} times</p>
+      <p className="counter">Requests: {countClicks}</p>
     </div>
   );
 }
